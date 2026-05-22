@@ -336,11 +336,16 @@ select.form-input { cursor: pointer; }
 .breadcrumb a { color: var(--gold); text-decoration: none; }
 
 /* ══════════ SHOP FILTERS ══════════ */
-.shop-layout { display: grid; grid-template-columns: 240px 1fr; gap: 2rem; }
+.shop-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
 .filter-panel {
-    background: var(--dark-2); padding: 2rem;
-    border: 1px solid rgba(201,168,76,0.1); align-self: start;
-    position: sticky; top: 90px;
+    background: var(--dark-2);
+    padding: 2rem;
+    border: 1px solid rgba(201,168,76,0.1);
+    align-self: start;
 }
 .filter-title {
     font-size: 0.65rem; letter-spacing: 0.25em; color: var(--gold);
@@ -601,3 +606,28 @@ select.form-input { cursor: pointer; }
 .value-item h4 { font-family:var(--font-display); font-size:1.3rem; color:var(--white); margin-bottom:0.5rem; }
 .value-item p { font-size:0.78rem; color:var(--text-dim); }
 .gold { color: var(--gold) !important; }
+.product-image {
+    width: 100%;
+    height: 300px;
+    overflow: hidden;
+    border-radius: 10px;
+    background: #111;
+}
+
+.product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+.featured-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: gold;
+    color: black;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+}

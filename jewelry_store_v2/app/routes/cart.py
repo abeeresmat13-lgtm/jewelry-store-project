@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 # تم التعديل هنا لقراءة الموديلز من الفولدر الجديد
 from app.models import db, Product, Order, User
-
+from werkzeug.utils import secure_filename
 cart = Blueprint('cart', __name__)
 
 
@@ -76,6 +76,7 @@ def view_cart():
 @login_required
 def checkout():
     cart_data = get_cart()
+
     if not cart_data:
         flash('Your cart is empty.', 'info')
         return redirect(url_for('cart.view_cart'))
@@ -84,42 +85,68 @@ def checkout():
 
     items = []
     total = 0
+
     for pid, qty in cart_data.items():
         product = Product.query.get(int(pid))
         if product:
+            qty = int(qty)
             subtotal = float(product.price) * qty
-            total   += subtotal
-            items.append({'product': product, 'quantity': qty, 'subtotal': subtotal})
+            total += subtotal
+            items.append({
+                'product': product,
+                'quantity': qty,
+                'subtotal': subtotal
+            })
 
     error = None
 
     if request.method == 'POST':
         address = request.form.get('shipping_address', '').strip()
+
         if not address:
             error = 'Shipping address is required.'
+        elif not items:
+            error = 'Cart is empty.'
         else:
-            for item in items:
-                order = Order(
-                    user_id          = user.id,
-                    product_id       = item['product'].id,
-                    quantity         = item['quantity'],
-                    total_amount     = item['subtotal'],
-                    shipping_address = address,
-                    status           = 'pending'
-                )
-                db.session.add(order)
-                item['product'].stock_quantity -= item['quantity']
+            try:
+                for item in items:
+                    product = item['product']
 
-            db.session.commit()
-            session['cart'] = {}
-            session.modified = True
-            flash('Order placed successfully!', 'success')
-            return redirect(url_for('cart.my_orders'))
+                    order = Order(
+                        user_id=user.id,
+                        product_id=product.id,
+                        quantity=item['quantity'],
+                        total_amount=item['subtotal'],
+                        shipping_address=address,
+                        status='pending'
+                    )
 
-    return render_template('checkout.html',
-                           items=items, total=total,
-                           user=user, error=error)
+                    db.session.add(order)
 
+                    # update stock safely
+                    if product.stock_quantity:
+                        product.stock_quantity -= item['quantity']
+
+                db.session.commit()
+
+                session['cart'] = {}
+                session.modified = True
+
+                flash('Order placed successfully!', 'success')
+                return redirect(url_for('cart.my_orders'))
+
+            except Exception as e:
+                db.session.rollback()
+                print("CHECKOUT ERROR:", e)
+                flash("Checkout failed. Check server logs.", "error")
+
+    return render_template(
+        'checkout.html',
+        items=items,
+        total=total,
+        user=user,
+        error=error
+    )
 
 # ── ROUTE 9: MY ORDERS ────────────────────────────────────────
 @cart.route('/my-orders')

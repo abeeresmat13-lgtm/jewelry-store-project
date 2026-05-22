@@ -1,6 +1,9 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
+from werkzeug.utils import secure_filename
+import os
 # تم التعديل هنا لقراءة الموديلز من الفولدر الجديد
 from app.models import db, User, Product, Order, Category
+from uuid import uuid4
 
 admin = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -44,6 +47,12 @@ def dashboard():
 
 
 # ── ADMIN: ADD PRODUCT ────────────────────────────────────────
+
+
+UPLOAD_FOLDER = "app/static/uploads/products"
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+
 @admin.route('/product/add', methods=['POST'])
 @admin_required
 def add_product():
@@ -55,9 +64,20 @@ def add_product():
     material = request.form.get('material', '').strip()
     featured = 'is_featured' in request.form
 
+    file = request.files.get('image')
+
     if not name or not price:
         flash('Name and price are required.', 'error')
         return redirect(url_for('admin.dashboard'))
+
+    image_filename = None
+
+    # ✅ SAVE IMAGE PROPERLY
+    if file and file.filename:
+        ext = file.filename.rsplit('.', 1)[-1].lower()
+        image_filename = f"{uuid4().hex}.{ext}"
+        file_path = os.path.join(UPLOAD_FOLDER, image_filename)
+        file.save(file_path)
 
     product = Product(
         name           = name,
@@ -67,13 +87,15 @@ def add_product():
         category_id    = int(cat_id) if cat_id else None,
         material       = material,
         is_featured    = featured,
-        is_active      = True
+        is_active      = True,
+        image          = image_filename   
     )
+
     db.session.add(product)
     db.session.commit()
+
     flash(f'Product "{name}" added.', 'success')
     return redirect(url_for('admin.dashboard'))
-
 
 # ── ADMIN: DELETE PRODUCT ─────────────────────────────────────
 @admin.route('/product/delete/<int:product_id>', methods=['POST'])

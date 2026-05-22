@@ -53,9 +53,9 @@
             {% for product in featured %}
             <div class="product-card">
                 <a href="{{ url_for('shop.product_detail', product_id=product.id) }}">
-                    <div class="product-img">
-                        <span class="product-badge">Featured</span>💎
-                    </div>
+<div class="product-image">
+<img src="{{ url_for('static', filename='uploads/products/' ~ product.image) }}">
+</div>
                 </a>
                 <div class="product-info">
                     <div class="product-category">{{ product.category.name if product.category else 'Jewelry' }}</div>

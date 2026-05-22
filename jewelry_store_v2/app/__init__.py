@@ -2,6 +2,7 @@ import os
 import time
 from flask import Flask
 from .models import db, User, Category, Product
+from werkzeug.utils import secure_filename
 
 def create_app():
     app = Flask(__name__)
@@ -14,6 +15,7 @@ def create_app():
     )
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+    app.config['UPLOAD_FOLDER'] = 'static/uploads/products'
     # 2. تهيئة الداتابيز
     db.init_app(app)
 
@@ -46,34 +48,108 @@ def seed():
         admin_user.set_password('admin123')
         db.session.add(admin_user)
         db.session.commit()
-        print('✓ Admin created: admin@lumiere.com / admin123')
 
     if not Category.query.first():
         cats = [
-            Category(name='Rings',     description='Elegant rings'),
+            Category(name='Rings', description='Elegant rings'),
             Category(name='Necklaces', description='Stunning necklaces'),
             Category(name='Bracelets', description='Beautiful bracelets'),
-            Category(name='Earrings',  description='Exquisite earrings'),
+            Category(name='Earrings', description='Exquisite earrings'),
         ]
         db.session.add_all(cats)
         db.session.flush()
 
         products = [
-            Product(name='Diamond Solitaire Ring',  price=2999.99, stock_quantity=10, category_id=cats[0].id, material='18K White Gold, Diamond', is_featured=True),
-            Product(name='Rose Gold Twisted Band',  price=699.99,  stock_quantity=25, category_id=cats[0].id, material='14K Rose Gold'),
-            Product(name='Sapphire Halo Ring',      price=3499.99, stock_quantity=6,  category_id=cats[0].id, material='18K Gold, Sapphire', is_featured=True),
-            Product(name='Pearl Strand Necklace',   price=549.99,  stock_quantity=15, category_id=cats[1].id, material='Sterling Silver, Pearl', is_featured=True),
-            Product(name='Gold Herringbone Chain',  price=1299.99, stock_quantity=8,  category_id=cats[1].id, material='18K Yellow Gold'),
-            Product(name='Emerald Pendant',         price=2199.99, stock_quantity=4,  category_id=cats[1].id, material='18K Gold, Emerald', is_featured=True),
-            Product(name='Diamond Tennis Bracelet', price=4599.99, stock_quantity=5,  category_id=cats[2].id, material='14K White Gold, Diamonds', is_featured=True),
-            Product(name='Gold Bangle Set',         price=899.99,  stock_quantity=20, category_id=cats[2].id, material='18K Yellow Gold'),
-            Product(name='Diamond Stud Earrings',   price=799.99,  stock_quantity=30, category_id=cats[3].id, material='14K White Gold, Diamonds', is_featured=True),
-            Product(name='Pearl Drop Earrings',     price=349.99,  stock_quantity=18, category_id=cats[3].id, material='Sterling Silver, Pearl'),
+            Product(
+                name='Diamond Solitaire Ring',
+                price=2999.99,
+                stock_quantity=10,
+                category_id=cats[0].id,
+                material='18K White Gold, Diamond',
+                is_featured=True,
+                image='diamond_solitaire_ring.jpg'
+            ),
+            Product(
+                name='Rose Gold Twisted Band',
+                price=699.99,
+                stock_quantity=25,
+                category_id=cats[0].id,
+                material='14K Rose Gold',
+                image='rose_gold_twisted_band.jpg'
+            ),
+            Product(
+                name='Sapphire Halo Ring',
+                price=3499.99,
+                stock_quantity=6,
+                category_id=cats[0].id,
+                material='18K Gold, Sapphire',
+                is_featured=True,
+                image='sapphire_halo_ring.jpg'
+            ),
+            Product(
+                name='Pearl Strand Necklace',
+                price=549.99,
+                stock_quantity=15,
+                category_id=cats[1].id,
+                material='Sterling Silver, Pearl',
+                is_featured=True,
+                image='pearl_strand_necklace.jpg'
+            ),
+            Product(
+                name='Gold Herringbone Chain',
+                price=1299.99,
+                stock_quantity=8,
+                category_id=cats[1].id,
+                material='18K Yellow Gold',
+                image='gold_herringbone_chain.jpg'
+            ),
+            Product(
+                name='Emerald Pendant',
+                price=2199.99,
+                stock_quantity=4,
+                category_id=cats[1].id,
+                material='18K Gold, Emerald',
+                is_featured=True,
+                image='emerald_pendant.jpg'
+            ),
+            Product(
+                name='Diamond Tennis Bracelet',
+                price=4599.99,
+                stock_quantity=5,
+                category_id=cats[2].id,
+                material='14K White Gold, Diamonds',
+                is_featured=True,
+                image='diamond_tennis_bracelet.jpg'
+            ),
+            Product(
+                name='Gold Bangle Set',
+                price=899.99,
+                stock_quantity=20,
+                category_id=cats[2].id,
+                material='18K Yellow Gold',
+                image='gold_bangle_set.jpg'
+            ),
+            Product(
+                name='Diamond Stud Earrings',
+                price=799.99,
+                stock_quantity=30,
+                category_id=cats[3].id,
+                material='14K White Gold, Diamonds',
+                is_featured=True,
+                image='diamond_stud_earrings.jpg'
+            ),
+            Product(
+                name='Pearl Drop Earrings',
+                price=349.99,
+                stock_quantity=18,
+                category_id=cats[3].id,
+                material='Sterling Silver, Pearl',
+                image='pearl_drop_earrings.jpg'
+            ),
         ]
+
         db.session.add_all(products)
         db.session.commit()
-        print('✓ Categories and products seeded.')
-
 
 def init_db():
     retries = 10

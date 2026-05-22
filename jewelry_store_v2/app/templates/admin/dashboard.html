@@ -5,21 +5,39 @@
 <div style="max-width:1280px;margin:auto;padding:2rem;">
 
     <!-- HEADER -->
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem;flex-wrap:wrap;gap:1rem;">
+    <div
+        style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem;flex-wrap:wrap;gap:1rem;">
         <div>
-            <div style="font-family:var(--font-display);font-size:2.5rem;color:var(--white);font-weight:300;">Admin Dashboard</div>
-            <div style="font-size:0.72rem;color:var(--text-dim);letter-spacing:0.15em;">Welcome, {{ session.get('user_name') }}</div>
+            <div style="font-family:var(--font-display);font-size:2.5rem;color:var(--white);font-weight:300;">Admin
+                Dashboard</div>
+            <div style="font-size:0.72rem;color:var(--text-dim);letter-spacing:0.15em;">Welcome, {{
+                session.get('user_name') }}</div>
         </div>
         <a href="{{ url_for('auth.logout') }}" class="btn btn-outline">Logout</a>
     </div>
 
     <!-- STATS -->
     <div class="stats-grid" style="margin-bottom:2.5rem;">
-        <div class="stat-card"><div class="stat-label">Customers</div><div class="stat-value">{{ stats.total_customers }}</div></div>
-        <div class="stat-card"><div class="stat-label">Products</div><div class="stat-value">{{ stats.total_products }}</div></div>
-        <div class="stat-card"><div class="stat-label">Total Orders</div><div class="stat-value">{{ stats.total_orders }}</div></div>
-        <div class="stat-card"><div class="stat-label">Pending</div><div class="stat-value" style="color:var(--gold);">{{ stats.pending_orders }}</div></div>
-        <div class="stat-card"><div class="stat-label">Revenue</div><div class="stat-value" style="font-size:1.5rem;">${{ "%.0f"|format(stats.revenue) }}</div></div>
+        <div class="stat-card">
+            <div class="stat-label">Customers</div>
+            <div class="stat-value">{{ stats.total_customers }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Products</div>
+            <div class="stat-value">{{ stats.total_products }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Total Orders</div>
+            <div class="stat-value">{{ stats.total_orders }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Pending</div>
+            <div class="stat-value" style="color:var(--gold);">{{ stats.pending_orders }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Revenue</div>
+            <div class="stat-value" style="font-size:1.5rem;">${{ "%.0f"|format(stats.revenue) }}</div>
+        </div>
     </div>
 
     <!-- TABS -->
@@ -32,8 +50,9 @@
     <div id="tab-products" class="tab-content">
         <!-- ADD FORM -->
         <div style="background:var(--dark-2);padding:2rem;border:1px solid rgba(201,168,76,0.15);margin-bottom:2rem;">
-            <div style="font-family:var(--font-display);font-size:1.5rem;color:var(--white);margin-bottom:1.5rem;">Add New Product</div>
-            <form method="POST" action="{{ url_for('admin.add_product') }}">
+            <div style="font-family:var(--font-display);font-size:1.5rem;color:var(--white);margin-bottom:1.5rem;">Add
+                New Product</div>
+            <form method="POST" action="{{ url_for('admin.add_product') }}" enctype="multipart/form-data">
                 <div class="form-row">
                     <div class="form-group">
                         <label class="form-label">Name *</label>
@@ -41,7 +60,8 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label">Price (USD) *</label>
-                        <input type="number" name="price" class="form-input" step="0.01" min="0" required placeholder="999.99">
+                        <input type="number" name="price" class="form-input" step="0.01" min="0" required
+                            placeholder="999.99">
                     </div>
                 </div>
                 <div class="form-row">
@@ -73,7 +93,12 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label">Description</label>
-                    <textarea name="description" class="form-input" style="min-height:80px;" placeholder="Product description..."></textarea>
+                    <textarea name="description" class="form-input" style="min-height:80px;"
+                        placeholder="Product description..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Product Image</label>
+                    <input type="file" name="image" class="form-input" accept="image/*">
                 </div>
                 <button type="submit" class="btn btn-gold">Add Product</button>
             </form>
@@ -84,7 +109,13 @@
             <table class="data-table">
                 <thead>
                     <tr>
-                        <th>ID</th><th>Name</th><th>Category</th><th>Price</th><th>Stock</th><th>Featured</th><th>Action</th>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Price</th>
+                        <th>Stock</th>
+                        <th>Featured</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -95,14 +126,16 @@
                         <td style="color:var(--text-dim);">{{ p.category.name if p.category else '—' }}</td>
                         <td style="color:var(--gold);">${{ "%.2f"|format(p.price) }}</td>
                         <td>
-                            {% if p.stock_quantity > 5 %}<span style="color:var(--success);">{{ p.stock_quantity }}</span>
-                            {% elif p.stock_quantity > 0 %}<span style="color:var(--gold);">{{ p.stock_quantity }}</span>
+                            {% if p.stock_quantity > 5 %}<span style="color:var(--success);">{{ p.stock_quantity
+                                }}</span>
+                            {% elif p.stock_quantity > 0 %}<span style="color:var(--gold);">{{ p.stock_quantity
+                                }}</span>
                             {% else %}<span style="color:var(--danger);">0</span>{% endif %}
                         </td>
                         <td>{% if p.is_featured %}⭐{% else %}—{% endif %}</td>
                         <td>
                             <form method="POST" action="{{ url_for('admin.delete_product', product_id=p.id) }}"
-                                  onsubmit="return confirm('Deactivate this product?')">
+                                onsubmit="return confirm('Deactivate this product?')">
                                 <button class="btn btn-danger btn-sm">Deactivate</button>
                             </form>
                         </td>
@@ -119,7 +152,14 @@
             <table class="data-table">
                 <thead>
                     <tr>
-                        <th>Order #</th><th>Customer</th><th>Product</th><th>Qty</th><th>Total</th><th>Status</th><th>Date</th><th>Update</th>
+                        <th>Order #</th>
+                        <th>Customer</th>
+                        <th>Product</th>
+                        <th>Qty</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Update</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -134,10 +174,11 @@
                         <td style="color:var(--text-dim);">{{ order.created_at.strftime('%b %d, %Y') }}</td>
                         <td>
                             <form method="POST" action="{{ url_for('admin.update_order', order_id=order.id) }}"
-                                  style="display:flex;gap:0.4rem;align-items:center;">
-                                <select name="status" class="form-input" style="padding:0.3rem;font-size:0.7rem;width:110px;">
+                                style="display:flex;gap:0.4rem;align-items:center;">
+                                <select name="status" class="form-input"
+                                    style="padding:0.3rem;font-size:0.7rem;width:110px;">
                                     {% for s in ['pending','confirmed','shipped','delivered','cancelled'] %}
-                                    <option value="{{ s }}" {% if order.status == s %}selected{% endif %}>{{ s }}</option>
+                                    <option value="{{ s }}" {% if order.status==s %}selected{% endif %}>{{ s }}</option>
                                     {% endfor %}
                                 </select>
                                 <button class="btn btn-gold btn-sm">✓</button>
@@ -153,12 +194,12 @@
 </div>
 
 <script>
-function showTab(name) {
-    document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
-    document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
-    document.getElementById('tab-' + name).style.display = 'block';
-    event.target.classList.add('active');
-}
+    function showTab(name) {
+        document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+        document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+        document.getElementById('tab-' + name).style.display = 'block';
+        event.target.classList.add('active');
+    }
 </script>
 
 {% endblock %}

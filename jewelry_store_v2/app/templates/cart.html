@@ -13,7 +13,10 @@
         <div>
             {% for item in items %}
             <div class="cart-item">
-                <div class="cart-item-img">💎</div>
+<div class="product-image">
+    <img src="{{ url_for('static', filename='uploads/products/' + item.product.image) }}"
+         alt="{{ item.product.name }}">
+</div>
                 <div style="flex:1;">
                     <div class="cart-item-name">{{ item.product.name }}</div>
                     <div style="font-size:0.72rem;color:var(--text-dim);margin-top:0.2rem;">{{ item.product.material or '' }}</div>
