@@ -1,0 +1,45 @@
+{% extends "base.html" %} {% block title %}Login — Lumière{% endblock %} {%
+block content %}
+
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-logo">◆ Lumière<span>Sign in to your account</span></div>
+
+    {% if error %}
+    <div class="form-error">{{ error }}</div>
+    {% endif %}
+
+    <form method="POST" action="{{ url_for('auth.login') }}">
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input
+          type="email"
+          name="email"
+          class="form-input"
+          placeholder="your@email.com"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input
+          type="password"
+          name="password"
+          class="form-input"
+          placeholder="••••••••"
+          required
+        />
+      </div>
+
+      <button type="submit" class="btn btn-gold btn-full">Sign In</button>
+    </form>
+
+    <div class="auth-link">
+      Don't have an account?
+      <a href="{{ url_for('auth.register') }}">Create one</a>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

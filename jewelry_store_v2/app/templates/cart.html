@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Cart — Lumière{% endblock %}
+{% block content %}
+
+<div class="page-container">
+    <div class="page-header">
+        <div class="breadcrumb"><a href="{{ url_for('shop.home') }}">Home</a> / Cart</div>
+        <h1 class="page-title">Your Cart</h1>
+    </div>
+
+    {% if items %}
+    <div class="cart-layout">
+        <div>
+            {% for item in items %}
+            <div class="cart-item">
+                <div class="cart-item-img">💎</div>
+                <div style="flex:1;">
+                    <div class="cart-item-name">{{ item.product.name }}</div>
+                    <div style="font-size:0.72rem;color:var(--text-dim);margin-top:0.2rem;">{{ item.product.material or '' }}</div>
+                    <div class="cart-item-price">${{ "%.2f"|format(item.product.price) }} × {{ item.quantity }}</div>
+                    <div style="color:var(--gold);font-size:0.9rem;margin-top:0.3rem;">Subtotal: ${{ "%.2f"|format(item.subtotal) }}</div>
+                </div>
+                <form method="POST" action="{{ url_for('cart.view_cart') }}">
+                    <input type="hidden" name="action" value="remove">
+                    <input type="hidden" name="product_id" value="{{ item.product.id }}">
+                    <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                </form>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="cart-summary">
+            <div style="font-family:var(--font-display);font-size:1.5rem;color:var(--white);margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid rgba(201,168,76,0.2);">Summary</div>
+            {% for item in items %}
+            <div class="summary-row">
+                <span style="color:var(--text-dim);">{{ item.product.name[:22] }}{% if item.product.name|length > 22 %}…{% endif %} × {{ item.quantity }}</span>
+                <span>${{ "%.2f"|format(item.subtotal) }}</span>
+            </div>
+            {% endfor %}
+            <div class="summary-row"><span style="color:var(--text-dim);">Shipping</span><span style="color:var(--success);">Free</span></div>
+            <div class="summary-total"><span>Total</span><span>${{ "%.2f"|format(total) }}</span></div>
+            <a href="{{ url_for('cart.checkout') }}" class="btn btn-gold btn-full" style="margin-top:1.5rem;">Proceed to Checkout</a>
+            <a href="{{ url_for('shop.shop_page') }}" class="btn btn-outline btn-full" style="margin-top:0.8rem;">Continue Shopping</a>
+        </div>
+    </div>
+
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">🛒</div>
+        <h3>Your Cart is Empty</h3>
+        <a href="{{ url_for('shop.shop_page') }}" class="btn btn-gold" style="margin-top:1.5rem;">Explore Collection</a>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

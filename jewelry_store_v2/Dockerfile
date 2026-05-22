@@ -15,4 +15,5 @@ COPY . .
 
 EXPOSE 5000
 
-CMD ["python", "app.py"]
+# التعديل هنا: تشغيل السيرفر من خلال ملف run.py الجديد
+CMD ["python", "run.py"]

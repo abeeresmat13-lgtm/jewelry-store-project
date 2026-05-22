@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}Shop — Lumière{% endblock %}
+{% block content %}
+
+<div class="page-container">
+    <div class="page-header">
+        <div class="breadcrumb"><a href="{{ url_for('shop.home') }}">Home</a> / Shop</div>
+        <h1 class="page-title">Our Collection</h1>
+    </div>
+
+    <div class="shop-layout">
+        <!-- FILTERS -->
+        <aside class="filter-panel">
+            <div class="filter-title">Filters</div>
+
+            <form method="GET" action="{{ url_for('shop.shop_page') }}" style="margin-bottom:1.5rem;">
+                <input type="text" name="search" class="form-input" value="{{ search }}" placeholder="Search...">
+                <button type="submit" class="btn btn-gold btn-full" style="margin-top:0.5rem;">Search</button>
+            </form>
+
+            <div class="filter-section">
+                <h4>Categories</h4>
+                <a href="{{ url_for('shop.shop_page') }}" class="filter-cat {% if not current_category %}active{% endif %}">All Pieces</a>
+                {% for cat in categories %}
+                <a href="{{ url_for('shop.shop_page', category=cat.id, search=search, sort=sort) }}"
+                   class="filter-cat {% if current_category == cat.id %}active{% endif %}">{{ cat.name }}</a>
+                {% endfor %}
+            </div>
+
+            <div class="filter-section">
+                <h4>Sort By</h4>
+                <a href="{{ url_for('shop.shop_page', category=current_category, search=search, sort='name') }}"      class="filter-cat {% if sort=='name' %}active{% endif %}">Name A–Z</a>
+                <a href="{{ url_for('shop.shop_page', category=current_category, search=search, sort='price_asc') }}"  class="filter-cat {% if sort=='price_asc' %}active{% endif %}">Price: Low–High</a>
+                <a href="{{ url_for('shop.shop_page', category=current_category, search=search, sort='price_desc') }}" class="filter-cat {% if sort=='price_desc' %}active{% endif %}">Price: High–Low</a>
+            </div>
+        </aside>
+
+        <!-- PRODUCTS -->
+        <div>
+            {% if products.items %}
+            <div class="result-count">Showing {{ products.items|length }} of {{ products.total }} pieces</div>
+            <div class="products-grid">
+                {% for product in products.items %}
+                <div class="product-card">
+                    <a href="{{ url_for('shop.product_detail', product_id=product.id) }}">
+                        <div class="product-img">
+                            {% if product.is_featured %}<span class="product-badge">Featured</span>{% endif %}
+                            💎
+                        </div>
+                    </a>
+                    <div class="product-info">
+                        <div class="product-category">{{ product.category.name if product.category else 'Jewelry' }}</div>
+                        <div class="product-name">
+                            <a href="{{ url_for('shop.product_detail', product_id=product.id) }}" style="color:inherit;text-decoration:none;">{{ product.name }}</a>
+                        </div>
+                        <div class="product-price">${{ "%.2f"|format(product.price) }}</div>
+                        <div class="product-actions">
+                            <a href="{{ url_for('shop.product_detail', product_id=product.id) }}" class="btn btn-outline btn-sm">View</a>
+                            {% if session.get('user_id') and session.get('user_role') != 'admin' and product.stock_quantity > 0 %}
+                            <form method="POST" action="{{ url_for('cart.view_cart') }}">
+                                <input type="hidden" name="action" value="add">
+                                <input type="hidden" name="product_id" value="{{ product.id }}">
+                                <input type="hidden" name="quantity" value="1">
+                                <button class="btn btn-gold btn-sm">+ Cart</button>
+                            </form>
+                            {% elif product.stock_quantity == 0 %}
+                            <span class="out-badge">Out of Stock</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            {% if products.pages > 1 %}
+            <div class="pagination">
+                {% if products.has_prev %}
+                <a href="{{ url_for('shop.shop_page', page=products.prev_num, category=current_category, search=search, sort=sort) }}" class="page-link">‹</a>
+                {% endif %}
+                {% for p in products.iter_pages() %}
+                    {% if p %}
+                    <a href="{{ url_for('shop.shop_page', page=p, category=current_category, search=search, sort=sort) }}"
+                       class="page-link {% if p == products.page %}active{% endif %}">{{ p }}</a>
+                    {% else %}<span class="page-link">…</span>{% endif %}
+                {% endfor %}
+                {% if products.has_next %}
+                <a href="{{ url_for('shop.shop_page', page=products.next_num, category=current_category, search=search, sort=sort) }}" class="page-link">›</a>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">💎</div>
+                <h3>No Pieces Found</h3>
+                <a href="{{ url_for('shop.shop_page') }}" class="btn btn-outline" style="margin-top:1.5rem;">Clear Filters</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}
